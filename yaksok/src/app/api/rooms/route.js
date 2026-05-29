@@ -12,14 +12,15 @@ function generateCode(length = 6) {
 
 export async function POST() {
   try {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+    const key = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
 
     if (!url || !key) {
       return NextResponse.json({
         error: '환경변수 없음',
         hasUrl: !!url,
         hasKey: !!key,
+        urlValue: url.substring(0, 20),
       }, { status: 500 });
     }
 
@@ -42,7 +43,8 @@ export async function POST() {
       return NextResponse.json({
         error: 'DB 에러',
         detail: error.message,
-        code: error.code,
+        hint: error.hint,
+        url: url.substring(0, 30),
       }, { status: 500 });
     }
 
@@ -51,6 +53,7 @@ export async function POST() {
     return NextResponse.json({
       error: '서버 에러',
       detail: err.message,
+      url: (process.env.NEXT_PUBLIC_SUPABASE_URL || '').substring(0, 30),
     }, { status: 500 });
   }
 }
